@@ -5,29 +5,29 @@ ENV BOOST_VERSION 1.60.0
 ENV BOOST_NAME 1_60_0
 
 # System tools
-RUN apt-get update
-RUN apt-get install -y curl subversion git build-essential libssl-dev openssl python
+RUN apt-get update > /dev/null
+RUN apt-get install -y curl subversion git build-essential libssl-dev openssl python > /dev/null
 
 # Python
 RUN curl -fLs https://www.python.org/ftp/python/"$PYTHON_VERSION"/Python-"$PYTHON_VERSION".tar.xz | tar xJv -C /tmp
-RUN cd /tmp/Python-"$PYTHON_VERSION" && ./configure
-RUN cd /tmp/Python-"$PYTHON_VERSION" && make
-RUN cd /tmp/Python-"$PYTHON_VERSION" && make install
+RUN cd /tmp/Python-"$PYTHON_VERSION" && ./configure > /dev/null
+RUN cd /tmp/Python-"$PYTHON_VERSION" && make > /dev/null
+RUN cd /tmp/Python-"$PYTHON_VERSION" && make install > /dev/null
 RUN ln -s /usr/local/include/python3.6m /usr/local/include/python3.6
 
 # Get source
 RUN curl -fLs https://github.com/v8/v8/archive/5.8.121.tar.gz | tar xz -C /tmp
 RUN curl -fLs https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/pyv8/PyV8-0.9.tar.gz | tar xz -C /tmp
-RUN git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git /tmp/depot_tools
+RUN git clone --max-depth=1 https://chromium.googlesource.com/chromium/tools/depot_tools.git /tmp/depot_tools
 
 # Boost
 RUN curl -fLs http://ufpr.dl.sourceforge.net/project/boost/boost/"$BOOST_VERSION"/boost_"$BOOST_NAME".tar.bz2 | tar xjv -C /tmp
-RUN cd /tmp/boost_"$BOOST_NAME" && ./bootstrap.sh --with-python=python3 --with-libraries=system,thread,python
-RUN cd /tmp/boost_"$BOOST_NAME" && ./b2 cxxflags="-fPIC"
+RUN cd /tmp/boost_"$BOOST_NAME" && ./bootstrap.sh --with-python=python3 --with-libraries=system,thread,python  > /dev/null
+RUN cd /tmp/boost_"$BOOST_NAME" && ./b2 cxxflags="-fPIC"  > /dev/null
 
 # Build v8
-RUN mv /tmp/v8-5.8.121 /tmp/v8 && cd /tmp/v8 && PATH=/tmp/depot_tools:"$PATH" make dependencies
-
+ENV PATH "/tmp/depot_tools:$PATH"
+RUN mv /tmp/v8-5.8.121 /tmp/v8 && cd /tmp/v8 && make dependencies > /dev/null
 RUN mv /tmp/PyV8-0.9 /tmp/pyv8
 
 ### Modify a few files
@@ -50,7 +50,7 @@ RUN cd /tmp/pyv8 && \
     BOOST_HOME=/tmp/boost_"$BOOST_NAME" \
     LD_LIBRARY_PATH=/tmp/boost_"$BOOST_NAME"/stage/lib \
     PATH=/tmp/depot_tools:"$PATH" \
-    python3.6 setup.py build
+    python3.6 setup.py build  > /dev/null
 RUN mv /tmp/pyv8/build/lib.linux-x86_64-3.6 /tmp/pyv8/build/pyv8
 RUN mv /tmp/pyv8/build/pyv8/_PyV8.cpython-36m-x86_64-linux-gnu.so /tmp/pyv8/build/pyv8/_PyV8.so
 RUN touch /tmp/pyv8/build/pyv8/__init__.py
