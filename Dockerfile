@@ -9,7 +9,7 @@ RUN apt-get update > /dev/null
 RUN apt-get install -y curl subversion git build-essential libssl-dev openssl python > /dev/null
 
 # Python
-RUN curl -fLs https://www.python.org/ftp/python/"$PYTHON_VERSION"/Python-"$PYTHON_VERSION".tar.xz | tar xJv -C /tmp
+RUN curl -fLs https://www.python.org/ftp/python/"$PYTHON_VERSION"/Python-"$PYTHON_VERSION".tar.xz | tar xJ -C /tmp
 RUN cd /tmp/Python-"$PYTHON_VERSION" && ./configure > /dev/null
 RUN cd /tmp/Python-"$PYTHON_VERSION" && make > /dev/null
 RUN cd /tmp/Python-"$PYTHON_VERSION" && make install > /dev/null
@@ -18,10 +18,10 @@ RUN ln -s /usr/local/include/python3.6m /usr/local/include/python3.6
 # Get source
 RUN curl -fLs https://github.com/v8/v8/archive/5.8.121.tar.gz | tar xz -C /tmp
 RUN curl -fLs https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/pyv8/PyV8-0.9.tar.gz | tar xz -C /tmp
-RUN git clone --max-depth=1 https://chromium.googlesource.com/chromium/tools/depot_tools.git /tmp/depot_tools
+RUN git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git /tmp/depot_tools
 
 # Boost
-RUN curl -fLs http://ufpr.dl.sourceforge.net/project/boost/boost/"$BOOST_VERSION"/boost_"$BOOST_NAME".tar.bz2 | tar xjv -C /tmp
+RUN curl -fLs http://ufpr.dl.sourceforge.net/project/boost/boost/"$BOOST_VERSION"/boost_"$BOOST_NAME".tar.bz2 | tar xj -C /tmp
 RUN cd /tmp/boost_"$BOOST_NAME" && ./bootstrap.sh --with-python=python3 --with-libraries=system,thread,python  > /dev/null
 RUN cd /tmp/boost_"$BOOST_NAME" && ./b2 cxxflags="-fPIC"  > /dev/null
 
